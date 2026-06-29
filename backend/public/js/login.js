@@ -164,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
           alert("ERRO de Registo: Formato de e-mail inválido.");
           return;
         }
-
         // Verificar se o utilizador já existe
         if (users.some((u) => u.username === username)) {
           alert(
