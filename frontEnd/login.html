@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt">
+  <script src= "ficheiroJavaScriptLogin.js"> </script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--É uma instrução usada na criação de sites para que o conteúdo se ajuste automaticamente à tela de celulares ou tablets. Isso impede que a página fique com aparência minúscula e precise de zoom manual -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--aparecer na descricao do titulo na pagina do campo de busca-->
+    <meta
+      name="description"
+      content="Projeto de Tecnologias de Aplicações Web"
+    />
+    <title>Projeto de Tecnologias de Aplicações Web</title>
+    <link
+      href="style.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!--session1-->
+    <div>
+      <nav>
+        <h1>Tecnologias de Aplicações Web</h1>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="login.html">A minha conta</a></li>
+        </ul>
+      </nav>
+    </div>
+    <!--session2-->
+    <main>
+      <section class="formulario" id="vista-formulario">
+        <h2>Login</h2>
+        
+          <form id="login" onsubmit="event.preventDefault(); login();">
+
+            <label> Nome de utilizador:<input type="text" placeholder="Digite o nome do utilizador" id="username" name="username" required></label>
+            <br />
+            <label> Palavra-passe: <input type="password" id="password" placeholder="Digite a password" name="password" required></label>
+            <br />
+            <input type="submit" value="Entrar" />
+            <br>
+            <button onclick='location.href="registo.html"'>Ir para Registo</button>
+          </br>
+          </form>
+
+      </section>
+      <section class="perfil" id="vista-perfil" style="display: none">
+        <h2>Dados do utilizador</h2>
+          <h3 id="perfil-ola">Olá!</h3>
+            <div class="dadosUtilizador">
+              <!-- Dados do Utilizador (preenchidos pelo JavaScript) -->
+              <p id="perfil-nome"></p>
+              <p id="perfil-email"></p>
+              <p id="perfil-telemovel"></p>
+              <p id="perfil-username"></p>
+              <p id="perfil-nif"></p>
+              <p id="perfil-morada"></p>
+            </div>
+            
+            <div class="fotoPerfil">
+              <img src="medium\icone-de-utilizador_933463-115482.avif"> <!-- Colocar a forma de ir buscar ao update -->
+            </div>
+
+            <div class="botaoLogout">
+              <button type="button" onclick='location.href="login.html"'>Sair da Conta (Logout)</button>
+            </div>
+      </section>
+
+    </main>
+    <!--rodapé-->
+    <footer>
+      <p>
+        © C-ACADEMY 2026 Projeto Módulo de Tecnologias de Aplicações Web.
+        Desenvolvido por Grupo 1 [Isabel Soares, Nuno Baptista, Sónia Machado]
+      </p>
+    </footer>
+    </section>
+
+  </body>
+</html>

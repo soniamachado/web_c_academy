@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt">
+  <script src="ficheiroJavaScriptRegisto.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--É uma instrução usada na criação de sites para que o conteúdo se ajuste automaticamente à tela de celulares ou tablets. Isso impede que a página fique com aparência minúscula e precise de zoom manual -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--aparecer na descricao do titulo na pagina do campo de busca-->
+    <meta
+      name="description"
+      content="Projeto de Tecnologias de Aplicações Web"
+    />
+    <title>Projeto de Tecnologias de Aplicações Web</title>
+    <link
+      href="style.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!--session1-->
+    <div>
+      <nav>
+        <h1>Tecnologias de Aplicações Web</h1>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="login.html">A minha conta</a></li>
+        </ul>
+      </nav>
+    </div>
+    <!--session2-->
+    <main>
+      <section class="formulario" id="registo-formulario">
+        <h2>Registo</h2>
+        <!-- <p><form name="registo"> -->
+          <form name="registo" id="registo">
+            <label> Nome de utilizador:<input type="text" placeholder="Digite o nome do utilizador" id="username" name="username" required></label>
+            <br />
+            <label> Palavra-passe: <input type="password" id="password" placeholder="Digite a password" name="password" required></label>
+            <br />
+            <label for="foto">Foto de perfil:</label>
+            <input type="file"  id="foto" name="foto">
+            <input type="button" value="Upload">
+            <br>
+            <label>Nome:<input type="text" id="name" name="name" required></label>
+            <br>
+            <label>Email:<input type="email" id="email" name="email" required></label>
+            <br>
+            <label>Telemóvel:<input type="number" id="telemovel" name="telemovel" minlength="9" maxlength="9" required></label>
+            <br>
+            <label>Nif (9 dígitos):<input type="number" id="nif" name="nif" minlength="9" maxlength="9" required></label>
+            <br>
+            <br>
+            <label>Morada:<input type="text" id="morada" name="morada" max="56" required></label>
+            <br>
+            <input type="submit" value="Registar" />
+            <br>
+            <button type="button" onclick='location.href="login.html"'>Mudar para Login</button></br>
+            <br>
+
+          </form>
+      </section>
+      
+    </main>
+    <!--session1-rodapé-->
+    <footer>
+      <p>
+        © C-ACADEMY 2026 Projeto Módulo de Tecnologias de Aplicações Web.
+        Desenvolvido por Grupo 1 [Isabel Soares, Nuno Baptista, Sónia Machado]
+      </p>
+    </footer>
+  </body>
+</html>
