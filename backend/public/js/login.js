@@ -209,30 +209,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Lógica de Login (Executa se isRegisterMode for FALSE)
       else {
-        const userFound = users.find((u) => u.username === username);
+        // Criar o objeto a enviar ao servidor.
+        // 'identifier' pode ser o username OU o email (ver authController.js)
+        const loginPayload = {
+          identifier: username,
+          password: password,
+        };
 
-        // Verificar se o utilizador existe
-        if (!userFound) {
-          alert("ERRO de Login: Nome de utilizador não encontrado.");
-          return;
-        }
+        // Enviar o pedido POST para o servidor
+        try {
+          // Rota: http://localhost:3000/api/auth/login
+          const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginPayload),
+          });
 
-        // Verificar a palavra-passe
-        if (userFound.password !== password) {
-          alert("ERRO de Login: Palavra-passe incorreta.");
-          return;
-        }
+          const data = await response.json(); // O authController.js responde com JSON
 
-        // Criação da sessão (Guarda os dados do utilizador autenticado)
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userFound));
+          if (response.ok) {
+            // Guardar o Token JWT devolvido pelo servidor (para chamadas futuras à API)
+            localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
-        alert(`Login de ${username} BEM-SUCEDIDO!`);
+            // Guardar os dados do utilizador autenticado (para a navbar / sessão)
+            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
 
-        // 5. Redirecionamento para a Home / Admin
-        if (userFound.username === ADMIN_USERNAME) {
-          window.location.href = "admin.html"; // Redireciona o admin para a nova página
-        } else {
-          window.location.href = "login.html"; // Redireciona utilizadores normais para a conta
+            alert(`Login de ${data.user.username} BEM-SUCEDIDO!`);
+
+            // Redirecionamento consoante o tipo de utilizador
+            if (data.user.isAdmin) {
+              window.location.href = "admin.html"; // Admin vai para o painel
+            } else {
+              window.location.href = "login.html"; // Utilizador normal vai para a conta
+            }
+          } else {
+            // Trata erros vindos do servidor (ex: credenciais inválidas)
+            alert(`ERRO de Login: ${data.message || "Ocorreu um erro no servidor."}`);
+          }
+        } catch (error) {
+          // Trata erros de rede (servidor desligado, CORS, etc.)
+          console.error("Erro de rede durante o login:", error);
+          alert("ERRO de Login: Falha de comunicação com o servidor.");
         }
       }
     });
