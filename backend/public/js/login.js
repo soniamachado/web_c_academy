@@ -164,36 +164,47 @@ document.addEventListener("DOMContentLoaded", () => {
           alert("ERRO de Registo: Formato de e-mail inválido.");
           return;
         }
-        // Verificar se o utilizador já existe
-        if (users.some((u) => u.username === username)) {
-          alert(
-            "ERRO de Registo: O nome de utilizador já existe. Por favor, escolha outro.",
-          );
-          return;
-        }
-
-        // Criar utilizador
-        const newUser = {
+        // Criar o objeto de dados (Payload) para enviar ao servidor
+        const newUserPayload = {
           username: username,
           password: password,
-          photoUrl: photoDataUrl,
-          name: name,
+          fotografia: photoDataUrl, // O nome do campo é 'fotografia' (ver User.js)
+          nome: name,
           email: email,
-          phone: phone,
+          telemovel: phone, // O nome do campo é 'telemovel' (ver User.js)
           nif: nif,
-          address: address,
-          isAdmin: false,
+          morada: address, // O nome do campo é 'morada' (ver User.js)
         };
 
-        // Adiciona o novo utilizador ao array e guarda no localStorage
-        users.push(newUser);
-        saveUsers(users); // Usando a função importada
+        // Enviar o pedido POST para o servidor
+        try {
+          // Rota: http://localhost:3000/api/auth/register
+          const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: "POST", // Usamos POST para enviar os novos dados
+            headers: {
+              "Content-Type": "application/json", // OBRIGATÓRIO: Para indicar que o corpo é JSON
+            },
+            body: JSON.stringify(newUserPayload), // Converte o objeto JS para string JSON
+          });
 
-        alert(`Registo de ${username} BEM-SUCEDIDO! Pode agora fazer Login.`);
+          const data = await response.json(); // O authController.js responderá com JSON
 
-        // Muda automaticamente para o modo Login após registo
-        toggleRegisterBtn.click();
-        authForm.reset();
+          // Tratar a Resposta do Servidor
+          if (response.ok) {
+            alert(`Registo de ${username} BEM-SUCEDIDO! Pode agora fazer Login.`);
+
+            // Finalização no Frontend
+            toggleRegisterBtn.click(); // Muda automaticamente para o modo Login
+            authForm.reset();
+          } else {
+            // Trata erros vindos do servidor
+            alert(`ERRO de Registo: ${data.message || "Ocorreu um erro no servidor."}`);
+          }
+        } catch (error) {
+          // Trata erros de rede (Servidor desligado, problemas de CORS, etc.)
+          console.error("Erro de rede durante o registo:", error);
+          alert("ERRO de Registo: Falha de comunicação com o servidor.");
+        }
       }
 
       // Lógica de Login (Executa se isRegisterMode for FALSE)
