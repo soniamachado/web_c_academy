@@ -41,19 +41,43 @@ function renderAccountPage(user) {
   if (photoUser && nameUser && usernameUser && nifUser && addressUser) {
     // Atualiza a Foto
     // Se photoUrl estiver vazio, usa uma imagem padrão
-    photoUser.src = user.photoUrl || "img/default-profile.png";
-    // Atualiza os textos
-    profileGreeting.textContent = `Olá ${user.name}`;
-    nameUser.textContent = user.name;
+    photoUser.src = user.fotografia || "img/default-profile.png";
+    // Atualiza os textos (nomes de campos do servidor: nome, telemovel, morada...)
+    profileGreeting.textContent = `Olá ${user.nome}`;
+    nameUser.textContent = user.nome;
     emailUser.textContent = user.email;
     usernameUser.textContent = user.username;
-    phoneUser.textContent = user.phone;
+    phoneUser.textContent = user.telemovel;
     nifUser.textContent = user.nif;
-    addressUser.textContent = user.address;
+    addressUser.textContent = user.morada;
   } else {
     console.error(
       "Erro: Não foi possível encontrar todos os elementos do perfil no DOM para atualização.",
     );
+  }
+}
+
+/**
+ * Vai buscar o perfil completo do utilizador ao servidor (GET /api/users/profile)
+ * e desenha a página da conta. Usa o token JWT para o servidor saber quem é.
+ */
+async function carregarPerfil() {
+  try {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      console.error("Não foi possível obter o perfil do servidor.");
+      return;
+    }
+
+    const data = await response.json();
+    renderAccountPage(data.user); // Desenha com os dados completos vindos da base de dados
+  } catch (error) {
+    console.error("Erro de rede ao obter o perfil:", error);
   }
 }
 
@@ -108,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     contaArea.style = "display: flex;";
     loginRegistoArea.style = "display: none;";
 
-    renderAccountPage(user);
+    carregarPerfil(); // Busca o perfil completo à API e desenha a página da conta
 
     const logoutBtnPage = document.getElementById("logout-btn-page");
     if (logoutBtnPage) {

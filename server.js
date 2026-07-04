@@ -15,8 +15,11 @@ app.use(express.json()); // Configura o Express para processar pedidos que chega
 app.use(cors()); // Para simplificar, vamos permitir todas as origens
 app.use(morgan("tiny")); // Existem outros presets que podem usar: dev, combined, common, ou short
 app.use(helmet()); // Define cabeçalhos de resposta HTTP relacionados com a segurança
-const authRoutes = require("./routes/authRoutes"); // Importar as rotas
+const authRoutes = require("./routes/authRoutes"); // Importar as rotas de autenticação
 app.use("/api/auth", authRoutes); // Usar as rotas da API sob o prefixo /api/auth
+const userRoutes = require("./routes/userRoutes"); // Importar as rotas de utilizadores
+app.use("/api/users", userRoutes); // Usar as rotas de utilizadores sob o prefixo /api/users
+const seedAdmin = require("./config/seedAdmin"); // Função que cria o admin no arranque
 // Define a string de conexão a partir da variável de ambiente (MONGO_URI)
 const DB_URI = process.env.MONGO_URI || "mongodb://localhost:27017/projeto-db";
 //guiao 5
@@ -27,6 +30,7 @@ mongoose
   .then(() => {
     // Esta função é executada apenas se a ligação à base de dados for bem-sucedida
     console.log("Ligação bem-sucedida ao MongoDB!");
+    seedAdmin(); // Cria o administrador na base de dados (só se ainda não existir)
     app.listen(PORT, () => {
       // Servidor iniciado
       console.log(

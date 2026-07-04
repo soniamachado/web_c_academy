@@ -1,20 +1,44 @@
 const User = require("../models/User"); // Para usar o modelo de utilizador definido em Mongoose
 const jwt = require("jsonwebtoken"); // Para gerir tokens válidos durante sessões de uso da API
+const bcrypt = require("bcrypt"); // Para comparar a password com o hash guardado
+const { JWT_SECRET, TOKEN_EXPIRATION } = require("../config/jwt"); // Segredo partilhado
+const DOMPurify = require("isomorphic-dompurify"); // Para limpar texto malicioso (XSS)
 
-const JWT_SECRET = "a_vossa_chave_secreta_muito_segura";
-const TOKEN_EXPIRATION = "1h";
+// Função auxiliar: "limpa" um texto, removendo HTML/JS malicioso.
+// Se o valor não existir, devolve-o tal como está.
+function limpar(valor) {
+  if (typeof valor !== "string") return valor;
+  return DOMPurify.sanitize(valor.trim());
+}
 exports.register = async (req, res) => {
   try {
-    const {
-      username,
-      email,
-      password,
-      nome,
-      telemovel,
-      nif,
-      morada,
-      fotografia,
-    } = req.body; // Dados do novo utilizador vêm no corpo do pedido.
+    // Sanitização: "limpar" os campos de texto para remover código malicioso (XSS)
+    const username = limpar(req.body.username);
+    const email = limpar(req.body.email);
+    const password = req.body.password; // A password NÃO se sanitiza (vai virar hash)
+    const nome = limpar(req.body.nome);
+    const telemovel = limpar(req.body.telemovel);
+    const nif = limpar(req.body.nif);
+    const morada = limpar(req.body.morada);
+    const fotografia = req.body.fotografia; // A foto é um Data URL longo; não se sanitiza
+
+    // Validação: confirmar que os campos obrigatórios foram preenchidos
+    if (!username || !email || !password || !nome) {
+      return res.status(400).json({
+        success: false,
+        message: "Faltam campos obrigatórios (username, email, password, nome).",
+      });
+    }
+
+    // Validação: confirmar que o email tem um formato válido
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValido) {
+      return res.status(400).json({
+        success: false,
+        message: "O formato do email é inválido.",
+      });
+    }
+
     // Validação de Unicidade, ou seja não pode existir um outro utilizador na base de dados com o mesmo username ou email.
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
@@ -28,7 +52,7 @@ exports.register = async (req, res) => {
     const newUser = new User({
       username,
       email,
-      password, // A password nunca deve ser guardada em texto simples, mas por agora será!
+      password, // O hash é feito automaticamente pelo hook pre("save") do modelo User
       nome,
       telemovel,
       nif,
@@ -61,7 +85,16 @@ exports.register = async (req, res) => {
 //11. Implementem a função de login:
 exports.login = async (req, res) => {
   try {
-    const { identifier, password } = req.body; // 'identifier' pode ser username ou e-mail
+    const identifier = limpar(req.body.identifier); // 'identifier' pode ser username ou e-mail
+    const password = req.body.password;
+
+    // Validação: confirmar que ambos os campos foram enviados
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Faltam o identificador e/ou a password.",
+      });
+    }
 
     // Encontrar o utilizador com base no username ou e-mail
     const user = await User.findOne({
@@ -75,7 +108,10 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (password != user.password) {
+    // Compara a password escrita com o hash guardado na base de dados.
+    // O bcrypt "refaz" o hash da password escrita e compara com o guardado.
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
       return res.status(401).json({
         success: false,
         message: "Credenciais inválidas.",

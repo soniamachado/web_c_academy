@@ -1,4 +1,7 @@
 const mongoose = require("mongoose"); // Importa o Mongoose, a biblioteca ODM para o MongoDB.
+const bcrypt = require("bcrypt"); // Para fazer hash das passwords antes de as guardar
+
+const SALT_ROUNDS = 10; // Número de "voltas" do bcrypt. Quanto maior, mais lento (e mais seguro).
 
 const UserSchema = new mongoose.Schema(
   {
@@ -41,6 +44,20 @@ const UserSchema = new mongoose.Schema(
     timestamps: true, // Adiciona automaticamente os campos createdAt e updatedAt
   },
 );
+
+// Hook executado ANTES de gravar um utilizador (save).
+// Faz o hash da password apenas se ela foi definida ou alterada,
+// para não voltar a fazer hash de uma password que já está encriptada.
+UserSchema.pre("save", async function () {
+  // Se a password não foi alterada, termina sem fazer nada
+  if (!this.isModified("password")) {
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(SALT_ROUNDS); // Gera um "sal" único
+  this.password = await bcrypt.hash(this.password, salt); // Substitui a password pelo hash
+  // Numa função async não é preciso chamar next(): o Mongoose espera pela promessa.
+});
 
 const User = mongoose.model("User", UserSchema); // Cria o modelos no Mongoose, que atua como interface para a coleção do MongoDB
 
