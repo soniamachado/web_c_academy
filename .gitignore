@@ -1,0 +1,8 @@
+# Segredos — nunca enviar para o Git
+.env
+
+# Dependências (recriam-se com "npm install")
+node_modules/
+
+# Ficheiros do sistema
+.DS_Store

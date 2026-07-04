@@ -3,7 +3,7 @@ const User = require("../models/User"); // O modelo de utilizador
 // Dados do administrador principal.
 // A password fica em texto simples AQUI, mas é gravada com hash (o hook do modelo trata disso).
 const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "admin123"; // Password inicial do admin (podem mudar)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123"; // Password inicial do admin (vem do .env)
 
 // Cria o administrador na base de dados, mas SÓ se ele ainda não existir.
 // É chamada uma vez, no arranque do servidor, depois de ligar ao MongoDB.
