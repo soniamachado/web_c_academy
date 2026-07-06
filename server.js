@@ -44,9 +44,10 @@ mongoose
     console.error("ERRO: Falha na ligação ao MongoDB:", err.message);
   });
 
-// Rota de teste simples
-app.get("/", (req, res) => {
-  // Ficará à escuta de pedidos HTTP que usam o método GET no caminho / (ou seja, a raiz ou root da aplicação).
-  // Define a função callback que é executada sempre que um pedido corresponde à rota /.
-  res.send("A API de Utilizadores está ON!"); // Envia a resposta ao cliente
+// SPA (catch-all): qualquer caminho GET que NÃO comece por /api devolve o index.html.
+// Assim, o refresh e os links diretos (ex: /login, /admin) continuam a abrir a app,
+// e o router do frontend (js/router.js) trata da navegação.
+// Os ficheiros estáticos (css, js, imagens) já foram servidos pelo express.static acima.
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
