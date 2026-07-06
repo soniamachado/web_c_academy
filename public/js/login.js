@@ -10,6 +10,13 @@ import {
   AUTH_TOKEN_KEY,
   API_BASE_URL,
 } from "./utils.js";
+
+// Limpa um texto no browser (remove HTML/JS malicioso — XSS) usando o DOMPurify,
+// que é carregado no login.html (biblioteca purify.min.js). É a sanitização no FRONTEND.
+function limpar(valor) {
+  return window.DOMPurify.sanitize(valor);
+}
+
 /**
  * Lê um ficheiro (imagem) e retorna o conteúdo como Data URL (string base64).
  * @param {File} file - O objeto File selecionado pelo utilizador.
@@ -144,8 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
     authForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      // Recolha de Dados
-      const username = document.getElementById("username").value;
+      // Recolha de Dados (o username é limpo com DOMPurify; a password NÃO se limpa)
+      const username = limpar(document.getElementById("username").value);
       const password = document.getElementById("password").value;
       const users = getUsers();
 
@@ -153,11 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isRegisterMode) {
         const photoFile = document.getElementById("reg-photo").files[0];
         let photoDataUrl = "";
-        const nif = document.getElementById("reg-nif").value;
-        const name = document.getElementById("reg-name").value;
-        const email = document.getElementById("reg-email").value;
-        const phone = document.getElementById("reg-phone").value;
-        const address = document.getElementById("reg-address").value;
+        // Campos de texto limpos com DOMPurify (sanitização no frontend)
+        const nif = limpar(document.getElementById("reg-nif").value);
+        const name = limpar(document.getElementById("reg-name").value);
+        const email = limpar(document.getElementById("reg-email").value);
+        const phone = limpar(document.getElementById("reg-phone").value);
+        const address = limpar(document.getElementById("reg-address").value);
 
         if (photoFile) {
           try {
