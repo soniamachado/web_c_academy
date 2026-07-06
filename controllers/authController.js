@@ -2,42 +2,11 @@ const User = require("../models/User"); // Para usar o modelo de utilizador defi
 const jwt = require("jsonwebtoken"); // Para gerir tokens válidos durante sessões de uso da API
 const bcrypt = require("bcrypt"); // Para comparar a password com o hash guardado
 const { JWT_SECRET, TOKEN_EXPIRATION } = require("../config/jwt"); // Segredo partilhado
-const DOMPurify = require("isomorphic-dompurify"); // Para limpar texto malicioso (XSS)
 
-// Função auxiliar: "limpa" um texto, removendo HTML/JS malicioso.
-// Se o valor não existir, devolve-o tal como está.
-function limpar(valor) {
-  if (typeof valor !== "string") return valor;
-  return DOMPurify.sanitize(valor.trim());
-}
 exports.register = async (req, res) => {
   try {
-    // Sanitização: "limpar" os campos de texto para remover código malicioso (XSS)
-    const username = limpar(req.body.username);
-    const email = limpar(req.body.email);
-    const password = req.body.password; // A password NÃO se sanitiza (vai virar hash)
-    const nome = limpar(req.body.nome);
-    const telemovel = limpar(req.body.telemovel);
-    const nif = limpar(req.body.nif);
-    const morada = limpar(req.body.morada);
-    const fotografia = req.body.fotografia; // A foto é um Data URL longo; não se sanitiza
-
-    // Validação: confirmar que os campos obrigatórios foram preenchidos
-    if (!username || !email || !password || !nome) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltam campos obrigatórios (username, email, password, nome).",
-      });
-    }
-
-    // Validação: confirmar que o email tem um formato válido
-    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!emailValido) {
-      return res.status(400).json({
-        success: false,
-        message: "O formato do email é inválido.",
-      });
-    }
+    // Os dados já vêm validados e sanitizados pelo express-validator (ver routes/authRoutes.js).
+    const { username, email, password, nome, telemovel, nif, morada, fotografia } = req.body;
 
     // Validação de Unicidade, ou seja não pode existir um outro utilizador na base de dados com o mesmo username ou email.
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
@@ -85,16 +54,8 @@ exports.register = async (req, res) => {
 //11. Implementem a função de login:
 exports.login = async (req, res) => {
   try {
-    const identifier = limpar(req.body.identifier); // 'identifier' pode ser username ou e-mail
-    const password = req.body.password;
-
-    // Validação: confirmar que ambos os campos foram enviados
-    if (!identifier || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltam o identificador e/ou a password.",
-      });
-    }
+    // Os dados já vêm validados e sanitizados pelo express-validator (ver routes/authRoutes.js).
+    const { identifier, password } = req.body; // 'identifier' pode ser username ou e-mail
 
     // Encontrar o utilizador com base no username ou e-mail
     const user = await User.findOne({
